@@ -1,0 +1,16 @@
+[package]
+#publish = false
+name = "asciiutils"
+version = "0.7.3"
+description = "Utilities to handle ASCII characters"
+
+authors = ["Jonas mg (https://github.com/tredoe)"]
+#homepage = ""
+repository = "https://github.com/tredoe/asciiutils"
+documentation = "https://docs.rs/asciiutils"
+
+readme = "README.md"
+keywords = ["ascii"]
+license = "MPL-2.0"
+
+[dependencies]
