@@ -15,30 +15,33 @@ use std::fmt;
 
 /// Methods for ASCII operations on characters.
 pub trait Check {
-    /// is_letter checks whether it is an ASCII letter (a-z / A-Z).
+    /// `is_letter` checks whether it is an ASCII letter (a-z / A-Z).
     fn is_letter(self) -> bool;
-    /// is_lower checks whether it is an ASCII lower case letter (a-z).
+    /// `is_lower` checks whether it is an ASCII lower case letter (a-z).
     fn is_lower(self) -> bool;
-    /// is_upper checks whether it is an ASCII upper case letter (A-Z).
+    /// `is_upper` checks whether it is an ASCII upper case letter (A-Z).
     fn is_upper(self) -> bool;
-    /// is_digit checks whether it is an ASCII digit (0-9).
+    /// `is_digit` checks whether it is an ASCII digit (0-9).
     fn is_digit(self) -> bool;
-    /// is_space checks whether it is an ASCII space character
+    /// `is_space` checks whether it is an ASCII space character
     /// (Space, Horizontal Tab, Line Feed, Vertical Tab, Form Feed, Carriage Return).
     fn is_space(self) -> bool;
 
-    /// is_control checks whether it is an ASCII control character.
+    /// `is_control` checks whether it is an ASCII control character.
     /// The control characters are unprintable control codes and are used
     /// to control peripherals such as printers.
     fn is_control(self) -> bool;
 
-    /// is_printable checks whether it is an ASCII printable character.
+    /// `is_printable` checks whether it is an ASCII printable character.
     /// The printable characters are common for all the different variations
     /// of the ASCII table; represent letters, digits, punctuation marks,
     /// and a few miscellaneous symbols.
     fn is_printable(self) -> bool;
 
-    /// is_extended checks whether it is an extended ASCII code.
+    /// `is_us_ascii` checks whether it is an US-ASCII character.
+    fn is_us_ascii(self) -> bool;
+
+    /// `is_extended` checks whether it is an extended ASCII character.
     fn is_extended(self) -> bool;
 }
 
@@ -92,6 +95,13 @@ impl Check for u8 {
         }
     }
 
+    fn is_us_ascii(self) -> bool {
+        match self {
+            0x00...0x7F => true,
+            _ => false,
+        }
+    }
+
     fn is_extended(self) -> bool {
         match self {
             0x80...0xFF => true,
@@ -131,7 +141,8 @@ impl Check for char {
 
     fn is_space(self) -> bool {
         match self {
-            table::SPACE_CHAR | '\u{9}'...'\u{D}' => true,
+            table::SPACE_CHAR |
+            '\u{9}'...'\u{D}' => true,
             _ => false,
         }
     }
@@ -150,6 +161,13 @@ impl Check for char {
         }
     }
 
+    fn is_us_ascii(self) -> bool {
+        match self as u8 {
+            0x00...0x7F => true,
+            _ => false,
+        }
+    }
+
     fn is_extended(self) -> bool {
         match self as u8 {
             0x80...0xFF => true,
@@ -158,20 +176,22 @@ impl Check for char {
     }
 }
 
-/// check_ascii checks for non US-ASCII characters.
-pub fn check_ascii(name: &str) -> Result<(), AsciiError> {
+/// `check_ascii_printable` reports an error wheter the string has a non-ASCII
+/// character or any ASCII control character.
+pub fn check_ascii_printable(name: &str) -> Result<(), AsciiError> {
     let mut i: usize = 0;
 
     for byte in name.bytes() {
         match byte {
-            0...127 => (),
+            0x20...0x7E => (),
+            0x00...0x1F | 0x7F => return Err(AsciiError::ControlChar(i + 1)),
             _ => {
                 match name[i..].chars().next() {
-                    Some(v) => return Err(AsciiError { ch: v }),
+                    Some(v) => return Err(AsciiError::NonAscii(v)),
                     None => unreachable!(),
                 }
             }
-	    }
+        }
         i = i + 1;
     }
 
@@ -182,23 +202,32 @@ pub fn check_ascii(name: &str) -> Result<(), AsciiError> {
 //
 
 #[derive(Debug, PartialEq, Eq)]
-pub struct AsciiError {
-    pub ch: char,
-}
-
-impl fmt::Display for AsciiError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}: {}", self.description(), self.ch)
-    }
+pub enum AsciiError {
+    NonAscii(char),
+    ControlChar(usize),
 }
 
 impl error::Error for AsciiError {
     fn description(&self) -> &str {
-        "contain a non US-ASCII character"
+        match *self {
+            AsciiError::NonAscii(_) => "contain non US-ASCII character",
+            AsciiError::ControlChar(_) => "contain ASCII control character",
+        }
     }
 
     fn cause(&self) -> Option<&error::Error> {
         None
+    }
+}
+
+impl fmt::Display for AsciiError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            AsciiError::NonAscii(ch) => write!(f, "{}: {}", self.description(), ch),
+            AsciiError::ControlChar(pos) => {
+                write!(f, "{}: at position {}", self.description(), pos)
+            }
+        }
     }
 }
 
@@ -267,6 +296,13 @@ mod tests {
     }
 
     #[test]
+    fn test_us_ascii() {
+        assert!(Check::is_us_ascii('a'));
+
+        assert_eq!(Check::is_us_ascii('€'), false);
+    }
+
+    #[test]
     fn test_extended() {
         assert!(Check::is_extended('€'));
 
@@ -274,14 +310,21 @@ mod tests {
     }
 
     #[test]
-    fn test_check_ascii() {
-        check_ascii("aeiou").unwrap();
+    fn test_check_ascii_printable() {
+        check_ascii_printable("aeiou").unwrap();
 
-        assert_eq!(check_ascii("äeiou"), Err(AsciiError { ch: 'ä' }));
-        assert_eq!(check_ascii("aeïou"), Err(AsciiError { ch: 'ï' }));
-        assert_eq!(check_ascii("aeioü"), Err(AsciiError { ch: 'ü' }));
+        assert_eq!(check_ascii_printable("äeiou"),
+                   Err(AsciiError::NonAscii('ä')));
+        assert_eq!(check_ascii_printable("aeïou"),
+                   Err(AsciiError::NonAscii('ï')));
+        assert_eq!(check_ascii_printable("aeioü"),
+                   Err(AsciiError::NonAscii('ü')));
+        assert_eq!(check_ascii_printable("foo€bar"),
+                   Err(AsciiError::NonAscii('€')));
+        assert_eq!(check_ascii_printable("foo♦bar"),
+                   Err(AsciiError::NonAscii('♦')));
 
-        assert_eq!(check_ascii("foo€bar"), Err(AsciiError { ch: '€' }));
-        assert_eq!(check_ascii("foo♦bar"), Err(AsciiError { ch: '♦' }));
+        assert_eq!(check_ascii_printable("foo\tbar"),
+                   Err(AsciiError::ControlChar(4)));
     }
 }
