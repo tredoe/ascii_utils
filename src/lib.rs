@@ -223,10 +223,8 @@ impl error::Error for AsciiError {
 impl fmt::Display for AsciiError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            AsciiError::NonAscii(ch) => write!(f, "{}: {}", self.description(), ch),
-            AsciiError::ControlChar(pos) => {
-                write!(f, "{}: at position {}", self.description(), pos)
-            }
+            AsciiError::NonAscii(ch) => write!(f, "{} ({})", self.description(), ch),
+            AsciiError::ControlChar(pos) => write!(f, "{} at position {}", self.description(), pos),
         }
     }
 }
