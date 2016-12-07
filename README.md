@@ -1,4 +1,4 @@
-# asciiutils
+# ascii_utils
 
 > A Rust library to handle ASCII characters.
 
@@ -15,23 +15,23 @@ Add to your 'Cargo.toml' file:
 
 ```toml
 [dependencies]
-asciiutils = "^0"
+ascii_utils = "^0"
 ```
 
 and to your crate root:
 
 ```rust
-extern crate asciiutils;
+extern crate ascii_utils;
 ```
 
 ## Usage
 
-Read the [documentation](https://docs.rs/asciiutils).
+Read the [documentation](https://docs.rs/ascii_utils).
 
 ## Contribute
 
 The canonical source of this repository is hosted on
-[GitHub](https://github.com/tredoe/asciiutils).
+[GitHub](https://github.com/tredoe/ascii_utils).
 Please make your issues there.
 
 The pull requests are not accepted without filling an issue, to know wheter

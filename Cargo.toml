@@ -1,6 +1,5 @@
 [package]
-#publish = false
-name = "asciiutils"
+name = "ascii_utils"
 version = "0.8.1"
 description = "Utilities to handle ASCII characters"
 
