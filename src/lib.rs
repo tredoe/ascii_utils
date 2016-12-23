@@ -1,11 +1,11 @@
 // Copyright 2016  Jonas mg
 // See the 'AUTHORS' file at the top-level directory for a full list of authors.
-
+//
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-//! Package ascii_utils handles ASCII characters.
+//! Handles ASCII characters.
 
 pub mod table;
 
@@ -13,7 +13,7 @@ use std::error;
 use std::error::Error;
 use std::fmt;
 
-/// Methods for ASCII operations on characters.
+/// Defines the methods for ASCII operations on characters.
 pub trait Check {
     /// `is_letter` checks whether it is an ASCII letter (a-z / A-Z).
     fn is_letter(self) -> bool;
@@ -176,8 +176,8 @@ impl Check for char {
     }
 }
 
-/// `check_ascii_printable` reports an error wheter the string has a non-ASCII
-/// character or any ASCII control character.
+/// Reports an error wheter the string has a non-ASCII character or any ASCII
+/// control character.
 pub fn check_ascii_printable(name: &str) -> Result<(), AsciiError> {
     let mut i: usize = 0;
 
