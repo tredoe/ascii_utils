@@ -1,15 +1,12 @@
 [package]
 name = "ascii_utils"
-version = "0.8.3"
+version = "0.9.0"
 description = "Utilities to handle ASCII characters"
 
 authors = ["Jonas mg (https://github.com/tredoe)"]
-#homepage = ""
 repository = "https://github.com/tredoe/ascii_utils"
 documentation = "https://docs.rs/ascii_utils"
 
 readme = "README.md"
 keywords = ["ascii"]
 license = "MPL-2.0"
-
-[dependencies]

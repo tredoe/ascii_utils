@@ -7,11 +7,11 @@
 
 //! Handles ASCII characters.
 
-pub mod table;
-
 use std::error;
 use std::error::Error;
 use std::fmt;
+
+pub mod table;
 
 /// Defines the methods for ASCII operations on characters.
 pub trait Check {
@@ -141,7 +141,7 @@ impl Check for char {
 
     fn is_space(self) -> bool {
         match self {
-            table::SPACE_CHAR |
+            table::SPACE_AS_CHAR |
             '\u{9}'...'\u{D}' => true,
             _ => false,
         }
