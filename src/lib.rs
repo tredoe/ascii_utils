@@ -7,11 +7,10 @@
 
 //! Handles ASCII characters.
 
-use std::error;
-use std::error::Error;
-use std::fmt;
-
 pub mod table;
+mod errors;
+
+use errors::*;
 
 /// Defines the methods for ASCII operations on characters.
 pub trait Check {
@@ -198,42 +197,12 @@ pub fn check_ascii_printable(name: &str) -> Result<(), AsciiError> {
     Ok(())
 }
 
-// == Errors
-//
-
-#[derive(Debug, PartialEq, Eq)]
-pub enum AsciiError {
-    NonAscii(char),
-    ControlChar(usize),
-}
-
-impl error::Error for AsciiError {
-    fn description(&self) -> &str {
-        match *self {
-            AsciiError::NonAscii(_) => "contain non US-ASCII character",
-            AsciiError::ControlChar(_) => "contain ASCII control character",
-        }
-    }
-
-    fn cause(&self) -> Option<&error::Error> {
-        None
-    }
-}
-
-impl fmt::Display for AsciiError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match *self {
-            AsciiError::NonAscii(ch) => write!(f, "{} ({})", self.description(), ch),
-            AsciiError::ControlChar(pos) => write!(f, "{} at position {}", self.description(), pos),
-        }
-    }
-}
-
 // == Tests
 //
 
 #[cfg(test)]
 mod tests {
+    use errors::*;
     use super::*;
 
     #[test]
