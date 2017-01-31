@@ -10,7 +10,7 @@
 pub mod table;
 mod errors;
 
-use errors::*;
+pub use errors::*;
 
 /// Defines the methods for ASCII operations on characters.
 pub trait Check {
@@ -202,7 +202,6 @@ pub fn check_ascii_printable(name: &str) -> Result<(), AsciiError> {
 
 #[cfg(test)]
 mod tests {
-    use errors::*;
     use super::*;
 
     #[test]
