@@ -9,7 +9,7 @@ use std::error;
 use std::error::Error as ErrorT;
 use std::fmt;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum AsciiError {
     ControlChar(usize),
     NonAscii(char),
